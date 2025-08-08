@@ -1,0 +1,5 @@
+Flask
+dnspython
+requests
+beautifulsoup4
+gunicorn
