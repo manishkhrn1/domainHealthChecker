@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Domain Health Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: white;
+        }
+        .bg-success { background-color: #28a745; }
+        .bg-danger { background-color: #dc3545; }
+        .bg-warning { background-color: #ffc107; color: black; }
+        code {
+            background: #f4f4f4;
+            padding: 4px 6px;
+            display: block;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔎 Domain Health Checker</h1>
+    <form method="post">
+        <label for="domain">Enter domain:</label>
+        <input type="text" name="domain" id="domain" required>
+        <button type="submit">Check</button>
+    </form>
+
+    {% if result %}
+        <hr>
+        <h2>Results for <em>{{ result.domain }}</em></h2>
+
+        <p><strong>SPF Record:</strong>
+            {% if result.SPF and result.SPF[0].startswith("v=spf1") %}
+                <span class="badge bg-success">Found</span>
+                <code>{{ result.SPF[0] }}</code>
+            {% elif result.SPF and "error" in result.SPF[0].lower() %}
+                <span class="badge bg-danger">Error</span>
+                <code>{{ result.SPF[0] }}</code>
+            {% else %}
+                <span class="badge bg-danger">Not Found</span>
+            {% endif %}
+        </p>
+
+        <p><strong>DKIM Record:</strong>
+            {% if result.DKIM and result.DKIM[0].startswith("v=DKIM1") %}
+                <span class="badge bg-success">Found</span>
+                <code>{{ result.DKIM[0] }}</code>
+            {% elif result.DKIM and "error" in result.DKIM[0].lower() %}
+                <span class="badge bg-danger">Error</span>
+                <code>{{ result.DKIM[0] }}</code>
+            {% else %}
+                <span class="badge bg-danger">Not Found</span>
+            {% endif %}
+        </p>
+
+        <p><strong>DMARC Record:</strong>
+            {% if result.DMARC and "v=dmarc1" in result.DMARC[0].lower() %}
+                <span class="badge bg-success">Found</span>
+                <code>{{ result.DMARC[0] }}</code>
+            {% elif result.DMARC and "error" in result.DMARC[0].lower() %}
+                <span class="badge bg-danger">Error</span>
+                <code>{{ result.DMARC[0] }}</code>
+            {% else %}
+                <span class="badge bg-danger">Not Found</span>
+            {% endif %}
+        </p>
+
+        <p><strong>SSL Certificate:</strong>
+            {% if result.SSL %}
+                <span class="badge bg-success">Available</span>
+            {% else %}
+                <span class="badge bg-danger">Not Available</span>
+            {% endif %}
+        </p>
+
+        <p><strong>WordPress Detected:</strong>
+            {% if result.WordPress %}
+                <span class="badge bg-warning">Yes</span>
+                <p><strong>Version:</strong> <code>{{ result.WPVersion }}</code></p>
+                <p><strong>Plugins:</strong>
+                    {% if result.Plugins %}
+                        <ul>
+                        {% for plugin in result.Plugins %}
+                            <li><code>{{ plugin }}</code></li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <code>No plugins detected</code>
+                    {% endif %}
+                </p>
+            {% else %}
+                <span class="badge bg-success">No</span>
+            {% endif %}
+        </p>
+
+        <p><strong>Server:</strong> <code>{{ result.Server }}</code></p>
+        <p><strong>Powered By:</strong> <code>{{ result.PoweredBy }}</code></p>
+    {% endif %}
+</body>
+</html>
