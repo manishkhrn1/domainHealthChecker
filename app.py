@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import dns.resolver
 import socket
 import requests
+import os
 
 app = Flask(__name__)
 
