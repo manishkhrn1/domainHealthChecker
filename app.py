@@ -5,6 +5,19 @@ import requests
 import os
 
 app = Flask(__name__)
+ALLOWED_IFRAME_PARENTS = [
+    "https://solveitservices.com",
+    "https://www.solveitservices.com",
+]
+
+@app.after_request
+def add_embed_headers(resp):
+    resp.headers["Content-Security-Policy"] = (
+        "frame-ancestors 'self' " + " ".join(ALLOWED_IFRAME_PARENTS)
+    )
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["Referrer-Policy"] = "no-referrer-when-downgrade"
+    return resp
 
 def get_txt_records(domain):
     try:
